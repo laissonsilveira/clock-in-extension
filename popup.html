@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html ng-app="clockInApp">
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>clock-in</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/datarangepicker/daterangepicker.min.css">
+	<link rel='stylesheet' href='lib/angular-loading/loading-bar.min.css' media='all' />
+	<link rel='stylesheet' href='clock-in.css' media='all' />
+	<script src="lib/jquery.min.js" type='text/javascript'></script>
+	<script src="lib/angular.min.js" type='text/javascript'></script>
+	<script src="lib/moment.min.js" type='text/javascript'></script>
+	<script src="lib/datarangepicker/daterangepicker.min.js" type='text/javascript'></script>
+	<script src="lib/bootstrap/bootstrap.min.js" type='text/javascript'></script>
+	<script src="lib/moment-duration-format.js" type='text/javascript'></script>
+	<script src='lib/angular-loading/loading-bar.min.js' type='text/javascript'></script>
+	<script src="controller.js" type='text/javascript'></script>
+</head>
+
+<body ng-controller="CollectedDataController">
+	<div class="container-fluid" ng-show="isLogged">
+		<form>
+			<div class="row">
+				<div class="col-4 text-center">
+					Remaining
+					<br>
+					<label style="font-size: 25px;" class="negative number" ng-class="{'positive': remaining === 0 }">
+						{{ remainingFormatted }}
+					</label>
+				</div>
+				<div class="col-4 text-center">
+					<img ng-src="images/companies/{{companies.selectedOption.id}}.png" alt="Company" width="100px">
+				</div>
+				<div class="col-4 text-center">
+					Worked
+					<br>
+					<label style="font-size: 25px;" class="negative number"
+						ng-class="{'positive': divergence.worked_hours === '8' ? divergence.totalWorked >= 480 : divergence.totalWorked >= 360 }">
+						{{ totalWorkedFormatted }}
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12 text-center number" style="font-size: 35px;">
+					<label ng-class="{
+						'text-gray': count.hour01 && !clockSaved.hour01,
+						'negative': clockSaved.isNegative01,
+						'positive': clockSaved.isPositive01
+					}">
+						{{ clockSaved.hour01 || count.hour01 }}
+					</label>
+					<label ng-class="{
+						'text-gray': count.hour02 && !clockSaved.hour02,
+						'negative': clockSaved.isNegative02,
+						'positive': clockSaved.isPositive02
+					}">
+						{{ clockSaved.hour02 || count.hour02 }}
+					</label>
+					<label ng-class="{
+						'text-gray': count.hour03 && !clockSaved.hour03,
+						'negative': clockSaved.isNegative03,
+						'positive': clockSaved.isPositive03
+					}">
+						{{ clockSaved.hour03 || count.hour03 }}
+					</label>
+					<label ng-class="{
+						'text-gray': count.hour04 && !clockSaved.hour04,
+						'negative': clockSaved.isNegative04,
+						'positive': clockSaved.isPositive04
+					}">
+						{{ clockSaved.hour04 || count.hour04 }}
+					</label>
+					<label ng-class="{
+						'text-gray': count.hour05 && !clockSaved.hour05,
+						'negative': clockSaved.isNegative05,
+						'positive': clockSaved.isPositive05
+					}">
+						{{ clockSaved.hour05 || count.hour05 }}
+					</label>
+					<label ng-class="{
+						'text-gray': count.hour06 && !clockSaved.hour06,
+						'negative': clockSaved.isNegative06,
+						'positive': clockSaved.isPositive06
+					}">
+						{{ clockSaved.hour06 || count.hour06 }}
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<input class="form-control" type="date" ng-model="date" ng-change="getClockByDate()">
+				</div>
+				<div class="col-md-3">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="6" ng-model="divergence.worked_hours"
+							ng-change="updateCount()">
+						<label class="form-check-label">6 Hours</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="8" ng-model="divergence.worked_hours"
+							ng-change="updateCount()">
+						<label class="form-check-label">8 Hours</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="8.8" ng-model="divergence.worked_hours"
+							ng-change="updateCount()">
+						<label class="form-check-label">8:48 Hours</label>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" value="P" ng-model="divergence.isHoliday"
+							ng-disabled="divergence.dayOff">
+						<label class="form-check-label">Holiday</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" value="P" ng-model="divergence.dayOff">
+						<label class="form-check-label">Day OFF</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" value="P" ng-model="divergence.middayOff"
+							ng-disabled="divergence.dayOff">
+						<label class="form-check-label">Midday OFF</label>
+					</div>
+				</div>
+			</div>
+			<hr>
+			<!-- <div class="row">
+				<div class="col-12 pb-3">
+					<button type="button" ng-click="normalDay()" class="btn btn-outline-dark btn-block">Normal
+						day</button>
+				</div>
+			</div> -->
+			<div class="row">
+				<div class="col-6">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="P" ng-model="hour01.type">
+						<label class="form-check-label">P</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="N" ng-model="hour01.type"
+							ng-checked="divergence.dayOff">
+						<label class="form-check-label">N</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="E" ng-model="hour01.type">
+						<label class="form-check-label">E</label>
+					</div>
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="A" ng-model="hour01.type">
+						<label class="form-check-label">A</label>
+					</div> -->
+					<input class="form-control mb-2 mr-sm-2 number" type="time" ng-model="hour01.time"
+						ng-disabled="divergence.dayOff">
+				</div>
+				<div class="col-6">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="P" ng-model="hour02.type">
+						<label class="form-check-label">P</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="N" ng-model="hour02.type"
+							ng-checked="divergence.dayOff">
+						<label class="form-check-label">N</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="E" ng-model="hour02.type">
+						<label class="form-check-label">E</label>
+					</div>
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="A" ng-model="hour02.type">
+						<label class="form-check-label">A</label>
+					</div> -->
+					<input class="form-control mb-2 mr-sm-2 number" type="time" ng-model="hour02.time"
+						ng-disabled="divergence.dayOff">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-6">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="P" ng-model="hour03.type">
+						<label class="form-check-label">P</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="N" ng-model="hour03.type"
+							ng-checked="divergence.dayOff">
+						<label class="form-check-label">N</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="E" ng-model="hour03.type">
+						<label class="form-check-label">E</label>
+					</div>
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="A" ng-model="hour03.type">
+						<label class="form-check-label">A</label>
+					</div> -->
+					<input class="form-control mb-2 mr-sm-2 number" type="time" ng-model="hour03.time"
+						ng-disabled="divergence.dayOff">
+				</div>
+				<div class="col-6">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="P" ng-model="hour04.type">
+						<label class="form-check-label">P</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="N" ng-model="hour04.type"
+							ng-checked="divergence.dayOff">
+						<label class="form-check-label">N</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="E" ng-model="hour04.type">
+						<label class="form-check-label">E</label>
+					</div>
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="A" ng-model="hour04.type">
+						<label class="form-check-label">A</label>
+					</div> -->
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" value="D" ng-model="hour04.isNextDay">
+						<label class="form-check-label">Next Day</label>
+					</div> -->
+					<input class="form-control mb-2 mr-sm-2 number" type="time" ng-model="hour04.time"
+						ng-disabled="divergence.dayOff">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-6">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="P" ng-model="hour05.type">
+						<label class="form-check-label">P</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="N" ng-model="hour05.type">
+						<label class="form-check-label">N</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="E" ng-model="hour05.type">
+						<label class="form-check-label">E</label>
+					</div>
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="A" ng-model="hour05.type">
+						<label class="form-check-label">A</label>
+					</div> -->
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" value="D" ng-model="hour05.isNextDay">
+						<label class="form-check-label">Next Day</label>
+					</div> -->
+					<input class="form-control mb-2 mr-sm-2 number" type="time" ng-model="hour05.time">
+				</div>
+				<div class="col-6">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="P" ng-model="hour06.type">
+						<label class="form-check-label">P</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="N" ng-model="hour06.type">
+						<label class="form-check-label">N</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="E" ng-model="hour06.type">
+						<label class="form-check-label">E</label>
+					</div>
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" value="A" ng-model="hour06.type">
+						<label class="form-check-label">A</label>
+					</div> -->
+					<!-- <div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" value="D" ng-model="hour06.isNextDay">
+						<label class="form-check-label">Next Day</label>
+					</div> -->
+					<input class="form-control mb-2 mr-sm-2 number" type="time" ng-model="hour06.time">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<button type="button" ng-click="onSaveHours()" class="btn btn-outline-dark btn-block">Save</button>
+				</div>
+			</div>
+			<hr>
+			<div class="row">
+				<div class="col-md-2 col-xs-12">
+					<button type="button" class="btn btn-outline-danger btn-block" ng-click="logout()">Logout</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+
+<!-- Modal Login -->
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modal_login" tabindex="-1" role="dialog"
+	aria-labelledby="modalLogin" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="text-center m-3">
+					<img src="images/icon.png" alt="Clock-in">
+				</div>
+				<form ng-submit="login(auth)">
+					<div class="form-group">
+						<select class="form-control" id="company" name="company"
+							ng-options="option.name for option in companies.availableOptions track by option.id"
+							ng-model="companies.selectedOption">
+						</select>
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="auth.user" placeholder="User">
+					</div>
+					<div class="form-group">
+						<input type="password" class="form-control" ng-model="auth.password" placeholder="Password">
+					</div>
+					<button type="submit" class="btn btn-clockin float-right">Login</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+</html>

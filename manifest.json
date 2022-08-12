@@ -1,0 +1,15 @@
+{
+    "name": "clock-in-extension",
+    "description": "To clock in from https://clock-in-lrs.herokuapp.com/",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "64": "/images/icon_64.png"
+        }
+    },
+    "icons": {
+        "64": "/images/icon_64.png"
+    }
+}

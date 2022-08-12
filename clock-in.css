@@ -1,0 +1,88 @@
+@font-face {
+    font-family: "clock-font";
+    src: url("font/digital-7.ttf");
+}
+
+body {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 370px;
+    height: 600px;
+}
+
+.number {
+    font-family: "clock-font";
+    font-size: 20px;
+}
+
+.negative {
+    color: red
+}
+
+.positive {
+    color: blue
+}
+
+.modal-full {
+    padding: 20px !important;
+}
+
+.modal-full .modal-dialog-full {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+}
+
+.modal-full .modal-content-full {
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+}
+
+.modal-full .modal-body-full {
+    overflow-y: auto;
+}
+
+dt,
+dd {
+    margin: 0 !important;
+}
+
+dl.inline-flex {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    width: 260px;
+    overflow: visible;
+}
+
+dl.inline-flex dt {
+    flex: 0 0 50%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+dl.inline-flex dd {
+    flex: 0 0 50%;
+    margin-left: auto;
+    text-align: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.text-gray {
+    color: gainsboro;
+}
+
+.btn-clockin {
+    color: #fff;
+    background-color: #5ea3d7;
+    border-color: #5ea3d7;
+}
+
+.btn-clockin:hover {
+    color: #fff;
+    background-color: #3d93d4;
+    border-color: #3d93d4;
+}
