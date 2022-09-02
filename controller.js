@@ -1,6 +1,6 @@
 angular.module('clockInApp', ['angular-loading-bar']).controller('CollectedDataController', ($scope, $http, $filter) => {
 
-    const HOST = 'https://clock-in-lrs.herokuapp.com';
+    const HOST = 'https://clock-in-lrs.onrender.com';
     // const HOST = 'http://localhost:3000';
     const INITIAL_BALANCE = 0;
     const keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';

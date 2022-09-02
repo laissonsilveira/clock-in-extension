@@ -1,6 +1,6 @@
 {
     "name": "clock-in-extension",
-    "description": "To clock in from https://clock-in-lrs.herokuapp.com/",
+    "description": "To clock in from https://clock-in-lrs.onrender.com/",
     "version": "1.0",
     "manifest_version": 3,
     "action": {
